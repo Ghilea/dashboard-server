@@ -1,77 +1,46 @@
-export const setupWebsocket = (app: any) => {
- 
-    /* app.addHook("preValidation", async (req: any, res: any) => {
-        if (req.routerPath === "/ws" && !req.query.username) {
+import { defaultDashboard } from "../dashboard/defaultDashboard";
+import { departmentDashboard } from "../dashboard/departmentDashboard";
+
+export const setupWebsocket = async (app: any) => {
+
+    app.addHook("preValidation", async (req: { routerPath: string }, res: any) => {
+        if (req.routerPath !== "/dashboard" && req.routerPath !== "/dashboard2") {
             res.code(403).send("Connection rejected");
         }
-    }); */
-
-    app.get('/ws', { websocket: true }, (connection, _) => {
-        console.log(connection.socket)
-        connection.socket.on('message', _ => {
-            connection.socket.send('hi from server')
-            //connection.socket.send(`Received message: ${message}`);
-        });
     });
 
-    /* app.get("/message-ws", { websocket: true }, (connection: any, _: any) => {
+    app.get("/dashboard", { websocket: true }, (connection: { socket: any }, _: any) => {
+        getDashboard(connection);
+    });
 
-        const username = "TestUserName";
-        console.log(`client connected ${username}`);
-
-        const ClientBroadcastToAll = (message: any) => {
-            app.websocketServer.clients.forEach(clientResponse => {
-                clientResponse.send(JSON.stringify(message));
-            });
-        };
-
-        const ServerBroadcastToAll = (message: any) => {
-             app.websocketServer.clients.forEach(serverResponse => {
-                 console.log(JSON.stringify(message));
-                 serverResponse.send(JSON.stringify(message));
-             });
-        };
-
-        //server send message
-        connection.socket.on("message", (message: any) => {
-            console.log('welcome to the server')
-            message = JSON.parse(message.toString());
-            ServerBroadcastToAll({
-                sender: '_server',
-                message: 'welcome to the server'
-            });
-        });
-        
-        ClientBroadcastToAll({
-            sender: '__server',
-            message: `${username} joined`
-        })
-
-        //broadcast incoming message
-        connection.socket.on("message", (message: any) => {
-            message = JSON.parse(message.toString());
-            ClientBroadcastToAll({
-                sender: username,
-                ...message,
-            });
-        });
-
-        //client send message
-        connection.socket.on("message", (message: any) => {
-            console.log(`Client message: ${message}`);
-            ClientBroadcastToAll({
-                sender: username,
-                message: `${username} ${message}`
-            });
-        });
-
-        //client leave
-        connection.socket.on("close", () => {
-            console.log("Client disconnected");
-            ClientBroadcastToAll({
-                sender: '__server',
-                message: `${username} left`
-            });
-        });
-    }); */
+    app.get("/dashboard2", { websocket: true }, (connection: { socket: any }, _: any) => {
+        getDashboard(connection, "departmentDashboard");
+    });
 };
+
+async function getDashboardType(dashboardType: string) {
+    switch (dashboardType) {
+        case "departmentDashboard":
+            return await departmentDashboard();
+        default:
+            return await defaultDashboard();
+    }
+}
+
+async function getDashboard(connection, dashboardType: string = "default") {
+
+    const interval = 3000;
+
+    //broadcast incoming message
+    const defaultDashboardInterval = setInterval(async () => {
+
+        const buildObject = { "data": await getDashboardType(dashboardType) };
+
+        connection.socket.send(JSON.stringify(buildObject));
+    }, interval);
+
+    //client leave
+    connection.socket.on("close", () => {
+        clearInterval(defaultDashboardInterval);
+    });
+}

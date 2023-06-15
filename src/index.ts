@@ -21,19 +21,16 @@ const server = async () => {
     app.register(cors, {});
 
     app.register(websocketPlugin, {
-        /* handle: (connection: any, _: any) => { 
-            connection.pipe(connection)
-        }, */
-        connectionOptions: {
-            
-        },
         options: {
             maxPayload: 1048576,
         },
     });
 
     setupRoutes(app)
-    setupWebsocket(app)
+
+    app.register(async function (ws) {
+        setupWebsocket(ws)
+    })
 
     const dbInitialized = await initDb(env);
 
