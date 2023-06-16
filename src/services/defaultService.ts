@@ -3,12 +3,12 @@ import { defaultRepo } from "../repositories/defaultRepo";
 
 export const defaultService = async () => {
 
-    const { getTest, getTest2 } = await defaultRepo();
+    const { getUserApi, getTest2 } = await defaultRepo();
 
-    const retriveTest = async () => {
-        const data = await getTest();
+    const retriveUserApi = async () => {
+        const data = await getUserApi();
         return {
-            "type": "test1",
+            "type": "custom_user_api",
             "data": data
         };
     }
@@ -21,5 +21,5 @@ export const defaultService = async () => {
         };;
     }
 
-    return { retriveTest, retriveTest2 }
+    return { retriveUserApi, retriveTest2 }
 }

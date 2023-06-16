@@ -5,10 +5,10 @@ export const defaultController = async () => {
 
     const { OkRequest } = Response();
 
-    const { retriveTest } = await defaultService();
+    const { retriveUserApi } = await defaultService();
 
     const test = async (_: any, res: any) => {
-        const data = await retriveTest();
+        const data = await retriveUserApi();
         OkRequest(res, { data: data })
     }
 

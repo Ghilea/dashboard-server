@@ -28,7 +28,5 @@ export const initDb = async (env: NodeJS.ProcessEnv): Promise<any> => {
         }
     });
    
-    console.log("Connected to db");
     return knex;
-  
 };

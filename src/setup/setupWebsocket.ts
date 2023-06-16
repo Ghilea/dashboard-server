@@ -4,17 +4,15 @@ import { departmentDashboard } from "../dashboard/departmentDashboard";
 export const setupWebsocket = async (app: any) => {
 
     app.addHook("preValidation", async (req: { routerPath: string }, res: any) => {
-        if (req.routerPath !== "/dashboard" && req.routerPath !== "/dashboard2") {
-            res.code(403).send("Connection rejected");
-        }
+        if (req.routerPath !== "/dashboard" && req.routerPath !== "/dashboard2") return res.code(403).send("Connection rejected");
     });
 
-    app.get("/dashboard", { websocket: true }, (connection: { socket: any }, _: any) => {
-        getDashboard(connection);
+    app.get("/dashboard", { websocket: true }, async (connection: { socket: any }, _: any) => {
+        return await getDashboard({ connection: connection });
     });
 
-    app.get("/dashboard2", { websocket: true }, (connection: { socket: any }, _: any) => {
-        getDashboard(connection, "departmentDashboard");
+    app.get("/dashboard2", { websocket: true }, async (connection: { socket: any }, _: any) => {
+        return await getDashboard({ connection: connection, dashboardType: "departmentDashboard", interval: 2000 });
     });
 };
 
@@ -27,11 +25,8 @@ async function getDashboardType(dashboardType: string) {
     }
 }
 
-async function getDashboard(connection, dashboardType: string = "default") {
+async function getDashboard({ connection, interval = 10000, dashboardType = "defaultDashboard" }) {
 
-    const interval = 3000;
-
-    //broadcast incoming message
     const defaultDashboardInterval = setInterval(async () => {
 
         const buildObject = { "data": await getDashboardType(dashboardType) };
@@ -39,7 +34,6 @@ async function getDashboard(connection, dashboardType: string = "default") {
         connection.socket.send(JSON.stringify(buildObject));
     }, interval);
 
-    //client leave
     connection.socket.on("close", () => {
         clearInterval(defaultDashboardInterval);
     });
