@@ -7,11 +7,11 @@ export const defaultController = async () => {
 
     const { retriveUserApi } = await defaultService();
 
-    const test = async (_: any, res: any) => {
+    const userApi = async (_: any, res: any) => {
         const data = await retriveUserApi();
         OkRequest(res, { data: data })
     }
 
-    return { test }
+    return { userApi }
 
 }

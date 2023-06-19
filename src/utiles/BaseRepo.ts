@@ -1,32 +1,42 @@
 import axios from 'axios';
 
-export const queryResults = async (data: object) => {
+export const queryResults = async (data: string | string[] | object) => {
 
-    const itemCount = Object.keys(data).length
+    const itemCount = Object.keys(data).length;
 
-    switch (true) {
-        case itemCount === 1:
+    if (itemCount === 1) {
+        const firstItem = data[0];
 
-            const type = data[0][Object.getOwnPropertyNames(data[0])];
+        const type = firstItem[Object.getOwnPropertyNames(firstItem)];
 
-            switch (type) {
-                case Number.isInteger(type):
-                    return parseInt(type);
-                case 'true':
-                    return true
-                case 'false':
-                    return false
-                default:
-                    if (isValidHttpUrl(type)) {
-                        return await axios.get(type).then((response) => {
-                            return response.data
-                        }).catch((error) => { console.error(error) })
-                    }
-                    return type
-            }
-        default:
-            return data;
+        if (Number.isInteger(type)) return parseInt(type);
+        return type;
     }
+
+    if (itemCount === 2) {
+        if (Array.isArray(data)) {
+
+            const promisedData = data.map((item: any) => {
+
+                if (isValidHttpUrl(item.api)) {
+                    return axios.get(item.api).then(({ data }) => {
+                        return { title: item.title, data: data }
+                    })
+                } else {
+                    return { title: item.title, data: item.api }
+                }
+
+            });
+
+            return await Promise.all(promisedData).then((data) => {
+                return data;
+            });
+
+        }
+    }
+
+    return data;
+    
 }
 
 function isValidHttpUrl(string: string) {
