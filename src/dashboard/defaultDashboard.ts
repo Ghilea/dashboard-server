@@ -3,11 +3,11 @@ import { defaultService } from "../services/defaultService";
 
 export const defaultDashboard = async (): Promise<DashboardObject[]> => {
 
-    const { retriveUserApi } = await defaultService();
+    const { retriveDashboardObjects } = await defaultService();
 
     return await Promise.all(
         [
-            retriveUserApi()
+            retriveDashboardObjects()
         ]
     )
 }

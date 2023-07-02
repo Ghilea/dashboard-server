@@ -3,15 +3,22 @@ import { defaultRepo } from "../repositories/defaultRepo";
 
 export const defaultService = async () => {
 
-    const { getUserApi } = await defaultRepo();
+    const { getUserApi, getDashboardObjects, updateDashboardCurrentDate, dbClose } = await defaultRepo();
 
-    const retriveUserApi = async () => {
-        const data = await getUserApi();
-        return {
-            "type": "custom_user_api",
-            "data": data
-        };
+    const retriveDashboardObjects = async () => {
+        const update = await updateDashboardCurrentDate();
+
+        console.log('check', update)
+
+        const query = await getDashboardObjects();
+        await dbClose();
+
+        return query;
     }
 
-    return { retriveUserApi }
+    const retriveUserApi = async () => {
+        return await getUserApi();
+    }
+
+    return { retriveDashboardObjects, retriveUserApi }
 }

@@ -5,7 +5,6 @@ import { initDb } from "./setup/setupConnection";
 import fastify from "fastify";
 import cors from "@fastify/cors";
 import websocketPlugin from "@fastify/websocket";
-
 import { setupRoutes } from "./setup/setupRoutes";
 import { setupWebsocket } from "./setup/setupWebsocket";
 
@@ -17,20 +16,21 @@ const server = async () => {
     env.TZ = 'Europe/Stockholm'
 
     const app = fastify({ logger: false });
-
-    app.register(cors, {});
+    app.register(cors, {
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    });
 
     app.register(websocketPlugin, {
         options: {
+            clientTracking: true,
             maxPayload: 1048576,
         },
     });
 
     setupRoutes(app)
 
-    app.register(async function (ws) {
-        setupWebsocket(ws)
-    })
+    app.register(ws => setupWebsocket(ws))
 
     const dbInitialized = await initDb(env);
 

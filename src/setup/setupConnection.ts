@@ -18,15 +18,20 @@ export const initDb = async (env: NodeJS.ProcessEnv): Promise<any> => {
 
     const { MYSQL_HOST, MYSQL_NAME, MYSQL_USER, MYSQL_PASSWORD } = env
 
-    const knex = Knex({
+    const db = Knex({
         client: "mysql2",
         connection: {
             host: MYSQL_HOST,
             user: MYSQL_USER,
             password: MYSQL_PASSWORD,
             database: MYSQL_NAME
+        },
+        pool: {
+            min: 2,
+            max: 10
         }
     });
    
-    return knex;
+    await db.raw('SELECT 1');
+    return db;
 };
