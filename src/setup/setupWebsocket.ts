@@ -60,7 +60,6 @@ function sendDashboardData(room: Room, data: any) {
 }
 
 function startSendingData(roomName: string) {
-
     const room = rooms.get(roomName);
     if (room && !room.intervalId) {
         room.intervalId = setInterval(async () => {
@@ -75,5 +74,6 @@ function stopSendingData(roomName: string) {
     if (room && room.intervalId) {
         clearInterval(room.intervalId);
         room.intervalId = null;
+        rooms.delete(roomName);
     }
 }
