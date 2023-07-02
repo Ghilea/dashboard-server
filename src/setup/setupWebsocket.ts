@@ -18,7 +18,7 @@ export const setupWebsocket = async (app: any) => {
         if (!room) {
             room = createRoom();
             rooms.set(dashboardRoom, room);
-            broadcastData(dashboardRoom);
+            startSendingData(dashboardRoom);
         }
 
         addClient(room, connection.socket);
@@ -51,13 +51,6 @@ async function getDashboardType(room: string) {
     }
 }
 
-export async function sendDashboardDataToAllRooms() {
-    for (const [dashboardRoom, room] of rooms.entries()) {
-        const dashboardData = await getDashboardType(dashboardRoom);
-        sendDashboardData(room, dashboardData);
-    }
-}
-
 function sendDashboardData(room: Room, data: any) {
     for (const client of room.clients) {
         if (client.readyState === 1) {
@@ -77,29 +70,10 @@ function startSendingData(roomName: string) {
     }
 }
 
-// Broadcast data to all connected clients in the specified room
-function broadcastData(roomName: string) {
-    const room = rooms.get(roomName);
-    if (room) {
-        startSendingData(roomName);
-    }
-}
-
-// Stop sending data for the specified room
-export function stopSendingData(roomName: string) {
+function stopSendingData(roomName: string) {
     const room = rooms.get(roomName);
     if (room && room.intervalId) {
         clearInterval(room.intervalId);
         room.intervalId = null;
-    }
-}
-
-// Stop sending data for all rooms
-export function stopSendingDataForAllRooms() {
-    for (const [, room] of rooms.entries()) {
-        if (room.intervalId) {
-            clearInterval(room.intervalId);
-            room.intervalId = null;
-        }
     }
 }
