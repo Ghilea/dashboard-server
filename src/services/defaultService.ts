@@ -8,7 +8,6 @@ export const defaultService = async () => {
     const retriveDashboardObjects = async (room: string) => {
         const update = await updateDashboardCurrentDate(room);
         let query = {data: []};
-        console.log(update)
         if (update) {
             query = await getDashboardObjects(room);
         }

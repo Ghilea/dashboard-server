@@ -23,7 +23,6 @@ export const defaultRepo = async () => {
     }
 
     const updateDashboardCurrentDate = async (room: string) => {
-        console.log(room)
         await db.raw(`
         UPDATE dashboard AS dash
         INNER JOIN rooms ON dash.room = rooms.id AND rooms.title = '${room}'
