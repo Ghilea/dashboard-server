@@ -6,10 +6,9 @@ export const defaultRepo = async () => {
     const { env } = process;
     const db = await initDb(env);
 
-    const getDashboardObjects = async () => {
+    const getDashboardObjects = async (room: string) => {
         const query = await db.raw(`
-        SELECT title, val
-        FROM dashboard`);
+        SELECT dash.title, dash.val, rooms.title FROM dashboard.dashboard as dash INNER JOIN rooms ON dash.room = rooms.id AND rooms.title = '${room}'`);
 
         return queryResults(query);
     }
@@ -23,14 +22,16 @@ export const defaultRepo = async () => {
         return queryResults(query);
     }
 
-    const updateDashboardCurrentDate = async () => {
+    const updateDashboardCurrentDate = async (room: string) => {
+        console.log(room)
         await db.raw(`
-        UPDATE dashboard AS a
-        SET a.updated = NOW()
-        WHERE a.id <> 0 AND updated <= NOW() - INTERVAL delay MINUTE`);
+        UPDATE dashboard AS dash
+        INNER JOIN rooms ON dash.room = rooms.id AND rooms.title = '${room}'
+        SET dash.updated = NOW()
+        WHERE dash.id <> 0 AND dash.updated <= NOW() - INTERVAL dash.delay MINUTE`);
 
         const check = await db.raw(`SELECT ROW_COUNT() AS updated_rows;`);
-        
+
         return queryResults(check);
     }
 

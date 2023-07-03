@@ -9,6 +9,7 @@ export const queryResults = async (data: string | string[] | object) => {
 
         const firstItem = dataObject[0];
 
+        console.log(firstItem)
         if (firstItem.hasOwnProperty('updated_rows')) return firstItem.updated_rows ? true : false;
         if (firstItem.hasOwnProperty('title') && firstItem.hasOwnProperty('val')) return { title: firstItem.title, data: Number.isInteger(parseFloat(firstItem.val)) ? parseFloat(firstItem.val) : firstItem.val };
 

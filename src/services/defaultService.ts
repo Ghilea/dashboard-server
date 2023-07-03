@@ -5,12 +5,14 @@ export const defaultService = async () => {
 
     const { getUserApi, getDashboardObjects, updateDashboardCurrentDate, dbClose } = await defaultRepo();
 
-    const retriveDashboardObjects = async () => {
-        const update = await updateDashboardCurrentDate();
-
-        console.log('check', update)
-
-        const query = await getDashboardObjects();
+    const retriveDashboardObjects = async (room: string) => {
+        const update = await updateDashboardCurrentDate(room);
+        let query = {data: []};
+        console.log(update)
+        if (update) {
+            query = await getDashboardObjects(room);
+        }
+        
         await dbClose();
 
         return query;

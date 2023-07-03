@@ -1,5 +1,4 @@
 import { defaultDashboard } from "../dashboard/defaultDashboard";
-import { departmentDashboard } from "../dashboard/departmentDashboard";
 import { Room, createRoom, addClient, removeClient, getClientCount } from "../models/clientTracker";
 
 const rooms: Map<string, Room> = new Map();
@@ -42,15 +41,6 @@ export const setupWebsocket = async (app: any) => {
     });
 };
 
-async function getDashboardType(room: string) {
-    switch (room) {
-        case "departmentDashboard":
-            return await departmentDashboard();
-        default:
-            return await defaultDashboard();
-    }
-}
-
 function sendDashboardData(room: Room, data: any) {
     for (const client of room.clients) {
         if (client.readyState === 1) {
@@ -63,7 +53,7 @@ function startSendingData(roomName: string) {
     const room = rooms.get(roomName);
     if (room && !room.intervalId) {
         room.intervalId = setInterval(async () => {
-            const dashboardData = await getDashboardType(roomName);
+            const dashboardData = await defaultDashboard(roomName);
             sendDashboardData(room, dashboardData);
         }, intervalTime);
     }
