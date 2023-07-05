@@ -8,7 +8,7 @@ export const defaultRepo = async () => {
 
     const getDashboardObjects = async (room: string) => {
         const query = await db.raw(`
-        SELECT dash.title, dash.val, rooms.title FROM dashboard.dashboard as dash INNER JOIN rooms ON dash.room = rooms.id AND rooms.title = '${room}'`);
+        SELECT dash.title, dash.val, dash.title FROM dashboard.dashboard as dash INNER JOIN rooms ON dash.room = rooms.id AND rooms.title = '${room}'`);
 
         return queryResults(query);
     }

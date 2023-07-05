@@ -6,7 +6,7 @@ import fastify from "fastify";
 import cors from "@fastify/cors";
 import websocketPlugin from "@fastify/websocket";
 import { setupRoutes } from "./setup/setupRoutes";
-import { setupWebsocket } from "./setup/setupWebsocket";
+import websocket from "./websocket";
 
 const server = async () => {
 
@@ -30,7 +30,7 @@ const server = async () => {
 
     setupRoutes(app)
 
-    app.register(ws => setupWebsocket(ws))
+    app.register(ws => websocket(ws))
 
     const dbInitialized = await initDb(env);
 
