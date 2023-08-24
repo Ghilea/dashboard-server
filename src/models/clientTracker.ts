@@ -1,19 +1,33 @@
 import { Room } from "../types/types";
 
+const rooms = new Map<string, Room>();
+
 export function createRoom(): Room {
     return {
         clients: new Set(),
-        rooms: new Map(),
         intervalId: null
     };
 }
 
-export function addClient(room: Room, client: any): void {
-    room.clients.add(client);
+export async function addClient(roomName: string, client: any): Promise<void> {
+    const room = await getRoom(roomName);
+
+    if (room) {
+        room.clients.add(client);
+        const clientCount = getClientCount(room);
+        console.log(`Client connected (${clientCount}) to room "${roomName}"`);
+    }
 }
 
-export function removeClient(room: Room, client: any): void {
-    room.clients.delete(client);
+export async function removeClient(roomName, client: any): Promise<void> {
+    const room = await getRoom(roomName);
+
+    if (room) {
+        room.clients.delete(client);
+        const clientCount = getClientCount(room);
+        console.log(`Client disconnected (${clientCount}) to room "${roomName}"`);
+    }
+
 }
 
 export function getClientCount(room: Room): number {
@@ -21,13 +35,15 @@ export function getClientCount(room: Room): number {
 }
 
 export function addRoom(room: Room, roomName: string): void {
-    room.rooms.set(roomName, createRoom());
+    rooms.set(roomName, room);
+    console.log(`Room ${roomName} added`);
 }
 
-export function getRoom(room: Room, roomName: string): Room | undefined {
-    return room.rooms.get(roomName);
+export async function getRoom(roomName: string): Promise<Room | undefined> {
+    return rooms.get(roomName);
 }
 
-export function removeRoom(room: Room, roomName: string): void {
-    room.rooms.delete(roomName);
+export function removeRoom(roomName: string): void {
+    rooms.delete(roomName);
+    console.log(`Room ${roomName} deleted`);
 }
